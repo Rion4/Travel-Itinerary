@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #eaeaea;
+            color: #333;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 600;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        form input,
+        form textarea {
+            background: #f9f9f9;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        form input:focus,
+        form textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.5);
+        }
+
+        form button {
+            background: #4CAF50;
+            border: none;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        form button:hover {
+            background: #45A049;
+            transform: translateY(-2px);
+        }
+
+        #itineraryList {
+            margin-top: 20px;
+        }
+
+        #itineraryList .list-group-item {
+            background: #f9f9f9;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        #itineraryList .list-group-item:hover {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+            transform: translateY(-3px);
+        }
+    </style>
+    <title>Travel Itinerary Planner</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Travel Itinerary Planner</h1>
+        <form id="itineraryForm">
+            <input type="text" id="destination" class="form-control" placeholder="Destination" required>
+            <input type="date" id="start_date" class="form-control" required>
+            <input type="date" id="end_date" class="form-control" required>
+            <textarea id="activities" class="form-control" placeholder="Activities (e.g., sightseeing, hiking)" rows="3" required></textarea>
+            <button type="submit">Add Plan</button>
+        </form>
+        <ul id="itineraryList" class="list-group mt-3"></ul>
+    </div>
+
+    <script>
+        document.getElementById('itineraryForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const destination = document.getElementById('destination').value;
+            const start_date = document.getElementById('start_date').value;
+            const end_date = document.getElementById('end_date').value;
+            const activities = document.getElementById('activities').value;
+
+            try {
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ destination, start_date, end_date, activities })
+                });
+
+                if (response.ok) {
+                    const newItinerary = await response.json();
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item');
+                    listItem.textContent = `${newItinerary.destination} (${newItinerary.start_date} - ${newItinerary.end_date}): ${newItinerary.activities}`;
+                    document.getElementById('itineraryList').appendChild(listItem);
+
+                    document.getElementById('itineraryForm').reset();
+                } else {
+                    throw new Error('Failed to add itinerary');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
