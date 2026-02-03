@@ -1,10 +1,15 @@
 import os
+import logging
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 if not OPENAI_API_KEY:
@@ -33,11 +38,14 @@ def add_itinerary():
             'activities': activities
         }
         itineraries.append(new_itinerary)
+        logger.info(f'Itinerary added for {destination}')
 
         return jsonify(new_itinerary), 201
     except KeyError as e:
+        logger.error(f'Missing data: {str(e)}')
         return jsonify({'error': f'Missing data: {str(e)}'}), 400
     except Exception as e:
+        logger.exception(f'An error occurred: {str(e)}')
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
